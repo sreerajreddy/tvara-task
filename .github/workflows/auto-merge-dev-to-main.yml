@@ -1,0 +1,44 @@
+name: Auto Merge dev → main
+
+on:
+  push:
+    branches:
+      - dev   # Trigger when commits are pushed to dev
+
+jobs:
+  merge-dev-to-main:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0   # Needed so Git has all branch info
+
+      - name: Set Git user
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Merge dev → main
+        run: |
+          # Add dev branch
+          git fetch origin dev:dev
+
+          # Try merge
+          git merge dev --allow-unrelated-histories -m "Auto-merge dev → main"
+
+      - name: Push merged changes
+        if: success()
+        run: |
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge conflict detected
+        if: failure()
+        run: |
+          echo "❌ Merge from dev → main failed due to conflicts."
+          echo "Please resolve conflicts manually."
+
