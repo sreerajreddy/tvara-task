@@ -27,7 +27,7 @@ jobs:
           git fetch origin dev:dev
 
           # Try merge
-          git merge dev -m "Auto-merge dev → main"
+          git merge dev --allow-unrelated-histories -m "Auto-merge dev → main"
 
       - name: Push merged changes
         if: success()
